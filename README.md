@@ -1,10 +1,10 @@
-# Gordon Ramsay (the tool!)
+# Rordan Gramsay
 
 This is a toolset our team uses to develop higher quality Chef cookbooks. The bar is
 intentionally set high so that good practices become second nature during development.
 
 We draw much of our inspiration from our cooking themed tools in Chef and found the king
-of Hell's Kitchen seemed a fitting name for a tool so picky about quality.
+of Hell's Kitchen, Gordon Ramsay, seemed a fitting name for a tool so picky about quality.
 
 ## Use case
 
