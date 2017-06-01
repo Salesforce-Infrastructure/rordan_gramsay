@@ -1,6 +1,3 @@
-# This is a private gem so we will not actually be publishing it to rubygems.org
-ENV['gem_push'] = 'no'
-
 require 'bundler/gem_tasks'
 
 begin
