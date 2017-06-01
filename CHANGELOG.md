@@ -5,6 +5,10 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
+No changes yet...
+
+## v1.0.1 (2017-06-01)
+
 - Corrects fork-bomb problem if rake tasks are run from mono-repo and any cookbooks don't have a Rakefile
 
 ## v1.0.0 (2017-06-01)
