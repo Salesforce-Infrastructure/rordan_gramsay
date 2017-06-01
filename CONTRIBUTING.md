@@ -5,7 +5,7 @@ Here is a short checklist of what we strive for in a well-formed code contributi
 - [ ] Automated tests are written for new/modified features
 - [ ] All automated tests are passing
 - [ ] Commit log is clean and devoid of "debugging" types of commits
-- [ ] Entry into CHANGELOG.md with `(credit: @username)` (see **Changelog** above)
+- [ ] Entry into [CHANGELOG.md](/CHANGELOG.md) with `(credit: @username)` (see **Changelog** above)
 - [ ] Pull request is associated with at least 1 issue
 
 Do your best to check as many of these boxes as you can and everything will be fine!
