@@ -1,0 +1,34 @@
+---
+Metrics/AbcSize:
+  Max: 30
+
+Metrics/BlockLength:
+  Exclude:
+    # ignore rake tasks
+    - 'lib/rordan_gramsay/chef_tasks/**/*'
+    - 'lib/rordan_gramsay/chef_tasks.rb'
+    - 'spec/**/*'
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+Style/FormatString:
+  Enabled: false
+
+Lint/HandleExceptions:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/**/*_spec.rb'

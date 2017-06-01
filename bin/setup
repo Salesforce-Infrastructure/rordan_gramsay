@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+if ! command -v yamllint &>/dev/null; then
+  printf 'Installing YamlLint via pip...\n'
+  pip install --user yamllint
+fi
+
+bundle install
+
+bundle exec overcommit --install
+bundle exec overcommit --sign
