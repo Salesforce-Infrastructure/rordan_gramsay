@@ -1,8 +1,10 @@
 require 'logger'
 require 'pty'
 
+require_relative '../version'
+
 def run_command(cmd, log)
-  system('gordon-ramsay init Rakefile') unless File.exist? 'Rakefile'
+  system("#{RordanGramsay::EXECUTABLE} init rakefile") unless File.exist? 'Rakefile'
 
   # rubocop:disable Lint/HandleExceptions
   log.info "Running `#{cmd}`"
