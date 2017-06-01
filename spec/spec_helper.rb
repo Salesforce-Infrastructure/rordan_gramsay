@@ -213,13 +213,17 @@ def capture_stderr(&_block)
 end
 
 def capture_stdout_and_stderr(&_block)
-  err = ''
+  original_stdout = $stdout
+  original_stderr = $stderr
+  $stdout = out = StringIO.new
+  $stderr = err = StringIO.new
 
-  out = capture_stdout do
-    err = capture_stderr do
-      yield
-    end
+  begin
+    yield
+  ensure
+    $stdout = original_stdout
+    $stderr = original_stderr
   end
 
-  [out, err]
+  [out.string, err.string]
 end
