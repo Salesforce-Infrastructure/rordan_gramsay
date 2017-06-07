@@ -6,6 +6,7 @@ means we will never make a backwards-incompatible change within a major version 
 ## _[UNRELEASED]_
 
 - Adds Simplecov for measuring test coverage
+- Increases test coverage
 
 ## v1.3.2 (2017-06-08)
 
