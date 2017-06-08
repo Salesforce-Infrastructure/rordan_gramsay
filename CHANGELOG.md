@@ -5,6 +5,10 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
+No changes yet...
+
+## v1.1.2 (2017-06-08)
+
 - [BUG] Rake task for FoodCritic used `String#format`, which is a private method in Ruby
 
 ## v1.1.1 (2017-06-08)
