@@ -5,7 +5,8 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
-No changes yet...
+- [BUG] Rake task for foodcritic counted the failures based on an old object structure
+- `RordanGramsay::Foodcritic::FileList#each` acts like iterating over array instead of a hash
 
 ## v1.1.0 (2017-06-08)
 

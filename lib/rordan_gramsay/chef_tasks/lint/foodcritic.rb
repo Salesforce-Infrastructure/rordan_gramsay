@@ -13,6 +13,6 @@ namespace :lint do
 
     task_obj.call
 
-    abort('Files to fix: %d'.format(task_obj.files.count(&:failed?))) if task_obj.failed?
+    abort('Files to fix: %d'.format(task_obj.file_list.count(&:failed?))) if task_obj.failed?
   end
 end

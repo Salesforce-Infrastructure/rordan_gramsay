@@ -7,11 +7,14 @@ module RordanGramsay
       include Enumerable
 
       def initialize
+        # Hash is keyed by the filename, for more efficient access
         @files = Hash.new { |hash, key| hash[key] = Foodcritic::File.new(key) }
       end
 
-      def each(&block)
-        @files.each(&block)
+      def each
+        @files.each do |_, f|
+          yield f
+        end
       end
 
       def failures?

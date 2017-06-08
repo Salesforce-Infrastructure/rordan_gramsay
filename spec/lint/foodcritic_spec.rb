@@ -1,6 +1,6 @@
 require_relative '../../lib/rordan_gramsay/lint/foodcritic'
 
-RSpec.describe RordanGramsay::Lint::Foodcritic, focus: true do
+RSpec.describe RordanGramsay::Lint::Foodcritic do
   before(:all) { setup_monorepo! 'TEST_chef-repo' }
   after(:all) { teardown_monorepo! 'TEST_chef-repo' }
 

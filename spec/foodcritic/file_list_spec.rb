@@ -13,6 +13,10 @@ RSpec.describe RordanGramsay::Foodcritic::FileList do
     it 'is implemented' do
       expect(subject).to respond_to :each
     end
+
+    it 'acts like iterating over an array of files' do
+      subject.each { |f| expect(f).to be_a file_klass }
+    end
   end
 
   describe '#filenames' do
@@ -44,7 +48,7 @@ RSpec.describe RordanGramsay::Foodcritic::FileList do
     context 'when 1+ failures in many files' do
       it 'calls File#failed? on each file until it finds one that is a failure' do
         files = []
-        subject.each do |(_, f)|
+        subject.each do |f|
           allow(f).to receive(:failed?).and_return(true)
           files << f
         end
@@ -58,7 +62,7 @@ RSpec.describe RordanGramsay::Foodcritic::FileList do
     context 'when no failures in many files' do
       it 'calls File#failed? on each file' do
         files = []
-        subject.each do |(_, f)|
+        subject.each do |f|
           allow(f).to receive(:failed?).and_return(false)
           files << f
         end

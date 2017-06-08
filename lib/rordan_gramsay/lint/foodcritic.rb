@@ -44,7 +44,7 @@ module RordanGramsay
       #   <space x4><line num>: <rule codes>
       #
       def call
-        @file_list.each do |_filename, file|
+        @file_list.each do |file|
           result = if file.rules.empty?
                      Paint['Pass', :green, :bold]
                    elsif file.failed?
