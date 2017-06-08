@@ -5,6 +5,10 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
+No changes yet...
+
+## v1.3.1 (2017-06-08)
+
 - [BUG] Rubocop linting task didn't actually run Rubocop
 
 ## v1.3.0 (2017-06-08)
