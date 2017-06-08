@@ -1,4 +1,5 @@
 require 'rake'
+require 'paint'
 require_relative '../../lint/foodcritic'
 
 namespace :lint do
@@ -13,6 +14,9 @@ namespace :lint do
 
     task_obj.call
 
-    abort('Files to fix: %d'.format(task_obj.file_list.count(&:failed?))) if task_obj.failed?
+    if task_obj.failed?
+      msg = Paint % ['Files to fix: %{count}', :white, :bold, count: task_obj.file_list.count(&:failed?)]
+      abort msg
+    end
   end
 end

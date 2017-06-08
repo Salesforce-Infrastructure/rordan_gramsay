@@ -5,11 +5,11 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
-No changes yet...
+- [BUG] Rake task for FoodCritic used `String#format`, which is a private method in Ruby
 
 ## v1.1.1 (2017-06-08)
 
-- [BUG] Rake task for foodcritic counted the failures based on an old object structure
+- [BUG] Rake task for FoodCritic counted the failures based on an old object structure
 - `RordanGramsay::Foodcritic::FileList#each` acts like iterating over array instead of a hash
 
 ## v1.1.0 (2017-06-08)
