@@ -10,6 +10,6 @@ namespace :lint do
     task_obj = RordanGramsay::Lint::TestChecker.new
     task_obj.call
 
-    abort('rake aborted!') if task_obj.error_count > 0
+    abort('rake aborted!') if task_obj.error_count.nonzero?
   end
 end

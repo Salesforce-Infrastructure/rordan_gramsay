@@ -59,8 +59,8 @@ module RordanGramsay
           end
         end
 
-        if files.count > 0
-          puts Paint % ["\n  Files to fix: %{files_count}", :white, :bold, files_count: Paint[@error_count.to_s, (@error_count / files.count) > 0.40 ? :red : :yellow, :bold]] if @error_count > 0
+        if files.count.nonzero?
+          puts Paint % ["\n  Files to fix: %{files_count}", :white, :bold, files_count: Paint[@error_count.to_s, (@error_count / files.count) > 0.40 ? :red : :yellow, :bold]] if @error_count.nonzero?
         end
 
         @done = true
