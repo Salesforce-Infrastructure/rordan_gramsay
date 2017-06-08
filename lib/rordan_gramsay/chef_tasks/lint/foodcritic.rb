@@ -14,6 +14,17 @@ namespace :lint do
 
     task_obj.call
 
+    rules = task_obj.rules
+    unless rules.empty?
+      puts ''
+      rules.each do |rule|
+        code = Paint[rule.code, :yellow]
+        description = Paint[rule.name, :white]
+        puts "#{code}: #{description}"
+      end
+      puts ''
+    end
+
     if task_obj.failed?
       msg = Paint % ['Files to fix: %{count}', :white, :bold, count: task_obj.file_list.count(&:failed?)]
       abort msg

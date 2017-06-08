@@ -17,6 +17,10 @@ module RordanGramsay
         end
       end
 
+      def empty?
+        count.zero?
+      end
+
       def failures?
         @files.any? { |(_, f)| f.failed? }
       end
