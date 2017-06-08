@@ -13,7 +13,7 @@ module RordanGramsay
       end
 
       def each(&block)
-        @rules.each(&block)
+        @rules.sort.each(&block)
       end
 
       def empty?
