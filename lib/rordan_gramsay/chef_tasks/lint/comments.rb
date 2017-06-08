@@ -9,6 +9,6 @@ namespace :lint do
     task_obj = RordanGramsay::Lint::CookbookCommentsChecker.new
     task_obj.call
 
-    abort if task_obj.error_count > 0
+    abort if task_obj.error_count.nonzero?
   end
 end
