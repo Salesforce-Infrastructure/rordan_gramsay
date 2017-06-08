@@ -5,7 +5,7 @@ require_relative '../../lint/foodcritic'
 namespace :lint do
   # Checks cookbook files against Foodcritic style guide
   task :foodcritic do
-    puts Paint['Inspecting files with Foodcritic', :yellow, :bold]
+    puts Paint['Inspecting files with FoodCritic', :yellow, :bold]
 
     task_obj = RordanGramsay::Lint::Foodcritic.new(
       fail_tags: ['any'],

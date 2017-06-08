@@ -46,12 +46,12 @@ module RordanGramsay
       def call
         @file_list.each do |file|
           result = if file.rules.empty?
-                     Paint['Pass', :green, :bold]
+                     Paint['Passed', :green, :bold]
                    elsif file.failed?
-                     Paint['Fail', :red, :bold]
+                     Paint['Failed', :red, :bold]
                    else
                      # Passes with warnings
-                     Paint['Pass', :yellow, :bold]
+                     Paint['Passed', :yellow, :bold]
                    end
 
           $stdout.puts Paint % ['  %{filename} : %{result}', filename: Paint[nice_filename(file.name), :white, :bold], result: result]

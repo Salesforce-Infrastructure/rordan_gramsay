@@ -7,6 +7,7 @@ means we will never make a backwards-incompatible change within a major version 
 
 - Adds Simplecov for measuring test coverage
 - Increases test coverage
+- [BUG] Spelling inconsistencies (`Pass` -> `Passed`, `Fail` -> `Failed`, `Foodcritic` -> `FoodCritic`)
 
 ## v1.3.2 (2017-06-08)
 
