@@ -223,3 +223,5 @@ def capture_stdout_and_stderr(&_block)
 
   [out, err]
 end
+
+require 'simplecov'

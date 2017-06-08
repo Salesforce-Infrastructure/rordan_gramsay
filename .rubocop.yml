@@ -4,6 +4,11 @@ AllCops:
   Exclude:
     - 'bin/**/*'
 
+Lint/HandleExceptions:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+
 Metrics/AbcSize:
   Max: 30
 
@@ -26,17 +31,16 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 10
 
+Style/BlockDelimiters:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+
+Style/FileName:
+  Exclude:
+    - '.simplecov'
+
 Style/FormatString:
   Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: false
-
-Lint/HandleExceptions:
-  Exclude:
-    - 'Rakefile'
-    - '**/*.rake'
-
-Style/BlockDelimiters:
-  Exclude:
-    - 'spec/**/*_spec.rb'
