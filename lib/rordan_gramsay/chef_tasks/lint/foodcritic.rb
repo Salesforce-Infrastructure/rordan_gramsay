@@ -9,7 +9,7 @@ namespace :lint do
 
     task_obj = RordanGramsay::Lint::Foodcritic.new(
       fail_tags: ['any'],
-      tags: %w(~FC001 ~FC003 ~FC019 ~FC023 ~FC064 ~FC065 ~FC066)
+      tags: %w(~FC001 ~FC003 ~FC019 ~FC023 ~FC064 ~FC065 ~FC066 ~FC078)
     )
 
     task_obj.call
