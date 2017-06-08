@@ -1,4 +1,7 @@
 ---
+AllCops:
+  TargetRubyVersion: 2.3
+
 Metrics/AbcSize:
   Max: 30
 
@@ -22,6 +25,9 @@ Metrics/PerceivedComplexity:
   Max: 10
 
 Style/FormatString:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
   Enabled: false
 
 Lint/HandleExceptions:
