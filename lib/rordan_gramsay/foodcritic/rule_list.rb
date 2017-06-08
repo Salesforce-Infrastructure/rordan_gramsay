@@ -16,6 +16,10 @@ module RordanGramsay
         @rules.each(&block)
       end
 
+      def empty?
+        count.zero?
+      end
+
       def <<(rule)
         rule = Rule.new(rule) unless rule.is_a?(Rule)
         @rules << rule

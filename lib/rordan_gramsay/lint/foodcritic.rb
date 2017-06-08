@@ -1,3 +1,5 @@
+require 'set'
+
 require_relative '../../rordan_gramsay'
 RordanGramsay.silence_warnings do
   require 'foodcritic'
@@ -69,6 +71,19 @@ module RordanGramsay
 
       def failed?
         @file_list.failures?
+      end
+
+      def rules
+        rules = RordanGramsay::Foodcritic::RuleList.new
+        @file_list.each do |file|
+          file.rules.each do |(_, ruleset)|
+            ruleset.each do |rule|
+              rules << rule
+            end
+          end
+        end
+
+        rules
       end
 
       private

@@ -47,4 +47,15 @@ RSpec.describe RordanGramsay::Lint::Foodcritic do
       end
     end
   end
+
+  describe '#rules' do
+    it 'lists the rules broken' do
+      File.write('metadata.rb', '')
+
+      expect(obj.rules).not_to be_empty
+      obj.rules.each do |rule|
+        expect(rule).to be_a RordanGramsay::Foodcritic::Rule
+      end
+    end
+  end
 end

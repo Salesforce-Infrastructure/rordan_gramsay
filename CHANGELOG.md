@@ -5,7 +5,7 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
-No changes yet...
+- List a summary of FoodCritic rules broken with code and name after listing of files
 
 ## v1.1.2 (2017-06-08)
 
