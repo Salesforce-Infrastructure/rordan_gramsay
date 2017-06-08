@@ -5,6 +5,10 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
+No changes yet...
+
+## v1.1.0 (2017-06-08)
+
 - [BUG] Foodcritic linting task should actually output results
 - Foodcritic output is displayed by file/line instead of by rule
 - Suppresses warnings for FoodCritic gem internals
