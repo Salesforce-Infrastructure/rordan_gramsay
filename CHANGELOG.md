@@ -5,6 +5,10 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
+No changes yet...
+
+## v1.2.0 (2017-06-08)
+
 - List a summary of FoodCritic rules broken with code and name after listing of files
 - `RordanGramsay::Foodcritic::RuleList` rules are sorted by code
 
