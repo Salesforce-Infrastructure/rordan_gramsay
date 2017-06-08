@@ -5,7 +5,7 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
-No changes yet...
+- Support 'All Rights Reserved' license
 
 ## v1.3.1 (2017-06-08)
 
