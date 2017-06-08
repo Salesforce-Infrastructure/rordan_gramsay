@@ -5,6 +5,10 @@ means we will never make a backwards-incompatible change within a major version 
 
 ## _[UNRELEASED]_
 
+No changes yet...
+
+## v1.3.0 (2017-06-08)
+
 - Ignore FoodCritic rule FC078, requiring open source licenses only
 
 ## v1.2.0 (2017-06-08)
