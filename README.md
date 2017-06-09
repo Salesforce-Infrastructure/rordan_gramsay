@@ -30,17 +30,17 @@ Recommended installation is via rubygems.org:
 
 ```
 $ gem install rordan_gramsay
-# => Successfully installed rordan_gramsay-0.4.0
+# => Successfully installed rordan_gramsay-1.0.1
 # => 1 gem installed
 ```
 
 Or download the [latest release from Github](https://github.com/Salesforce-Infrastructure/rordan_gramsay/releases/latest) and install locally:
 
 ```
-$ gem uninstall rordan_gramsay -v 0.4.0
-# => Successfully uninstalled rordan_gramsay-0.4.0
-$ gem install ~/Downloads/rordan_gramsay-v0.4.0.gem
-# => Successfully installed rordan_gramsay-0.4.0
+$ gem uninstall rordan_gramsay -v 1.0.1
+# => Successfully uninstalled rordan_gramsay-1.0.1
+$ gem install ~/Downloads/rordan_gramsay-v1.0.1.gem
+# => Successfully installed rordan_gramsay-1.0.1
 # => 1 gem installed
 ```
 
@@ -58,7 +58,7 @@ $ bundle install
 # => Using rake 12.0.0
 # => Using paint 2.0.0
 # => Using bundler 1.14.6
-# => Using rordan_gramsay 0.4.0
+# => Using rordan_gramsay 1.0.1
 # => Bundle complete! 1 Gemfile dependency, 4 gems now installed.
 # => Use `bundle show [gemname]` to see where a bundled gem is installed.
 ```
