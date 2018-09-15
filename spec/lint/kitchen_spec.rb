@@ -6,6 +6,7 @@ RSpec.describe RordanGramsay::Lint::KitchenChecker do
 
   # Setup a new test environment each time
   around(:example) do |example|
+    FileUtils.mkdir_p('TEST_chef-repo/cookbooks')
     FileUtils.cd('TEST_chef-repo/cookbooks') { setup_cookbook! 'example' }
 
     with_monorepo('TEST_chef-repo') do
@@ -14,70 +15,49 @@ RSpec.describe RordanGramsay::Lint::KitchenChecker do
       end
     end
 
-    FileUtils.rm_r('TEST_chef-repo/cookbooks/example', force: true)
+    FileUtils.rm_r('TEST_chef-repo/cookbooks', force: true)
   end
 
   let(:obj) { described_class.new }
   let(:files) { obj.files.map { |f| obj.nice_filename(f) } }
 
-  let(:good_yml) do
-    <<-EOF
-    ---
-    driver:
-      name: vagrant
-      customize:
-        memory: 4096
+  let(:bad_kitchen) do
+    <<~YML
+      ---
+      driver:
+        name: vagrant
+        customize:
+          memory: 4096
 
-    provisioner:
-      name: chef_zero
+      provisioner:
+        name: chef_solo
 
-    verifier:
-      name: inspec
+      verifier:
+        name: serverspec
 
-    platforms:
-      - name: salesforce/server2016
-        transport:
-          name: winrm
-        driver:
-          gui: false
+      platforms:
+        - name: salesforce/server2016
+          transport:
+            name: winrm
 
-    suites:
-      - name: default
-        run_list:
-          - recipe[example::default]
-    EOF
-  end
-  let(:bad_yml) do
-    <<-EOF
-    ---
-    driver:
-      name: vagrant
-      customize:
-        memory: 4096
-
-    provisioner:
-      name: chef_solo
-
-    verifier:
-      name: serverspec
-
-    platforms:
-      - name: salesforce/server2016
-        transport:
-          name: winrm
-
-    suites:
-      - name: default
-        run_list:
-          - recipe[example::default]
-    EOF
+      suites:
+        - name: default
+          run_list:
+            - recipe[example::default]
+    YML
   end
 
   it 'should detect all files it needs to check' do
     FileUtils.mkdir_p '.kitchen'
-    File.write('.kitchen.yml', good_yml)
-    File.write('.kitchen.local.yml', bad_yml)
-    File.write('.kitchen/foo.json', "{\n  \"some_key\": \"some value\"\n}\n")
+    File.write('.kitchen.local.yml', <<~YML)
+      ---
+      some: 'yaml'
+    YML
+    File.write('.kitchen/foo.json', <<~JSON)
+      {
+        "some_key": "some_value"
+      }
+    JSON
 
     expect(files).not_to be_empty
     expect(files).to include '.kitchen.yml'
@@ -90,10 +70,6 @@ RSpec.describe RordanGramsay::Lint::KitchenChecker do
   end
 
   context "when the verifier is set to 'inspec'" do
-    before(:each) do
-      File.write('.kitchen.yml', good_yml)
-    end
-
     it 'prints success message' do
       stdout, = capture_stdout_and_stderr { obj.call }
 
@@ -102,17 +78,15 @@ RSpec.describe RordanGramsay::Lint::KitchenChecker do
   end
 
   context "when the verifier is set to 'serverspec'" do
-    before(:each) do
-      File.write('.kitchen.yml', bad_yml)
-    end
-
     it 'prints failure message' do
+      File.write('.kitchen.yml', bad_kitchen)
       stdout, = capture_stdout_and_stderr { obj.call }
 
       expect(stdout).to match(/^.*\.kitchen\.yml.+Failed.*$/)
     end
 
     it 'prints the reason for the failure' do
+      File.write('.kitchen.yml', bad_kitchen)
       stdout, = capture_stdout_and_stderr { obj.call }
 
       expect(stdout).to match(/^.*\.kitchen\.yml.+Failed.+missing_inspec_verifier.*$/)
@@ -120,17 +94,15 @@ RSpec.describe RordanGramsay::Lint::KitchenChecker do
   end
 
   context 'when the verifier is not set' do
-    before(:each) do
-      File.write('.kitchen.yml', "---\n")
-    end
-
     it 'prints a failure message' do
+      File.write('.kitchen.yml', bad_kitchen)
       stdout, = capture_stdout_and_stderr { obj.call }
 
       expect(stdout).to match(/^.*\.kitchen\.yml.+Failed.*$/)
     end
 
     it 'prints the reason for the failure' do
+      File.write('.kitchen.yml', bad_kitchen)
       stdout, = capture_stdout_and_stderr { obj.call }
 
       expect(stdout).to match(/^.*\.kitchen\.yml.+Failed.+missing_inspec_verifier.*$/)
@@ -145,7 +117,7 @@ RSpec.describe RordanGramsay::Lint::KitchenChecker do
 
   context 'when checking the error count after running the linter' do
     it 'gives an integer with the number of files errored' do
-      File.write('.kitchen.yml', bad_yml)
+      File.write('.kitchen.yml', bad_kitchen)
 
       capture_stdout_and_stderr { obj.call }
 

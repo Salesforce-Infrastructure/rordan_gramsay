@@ -73,7 +73,7 @@ module RordanGramsay
           if File.exist?(File.join(dir, 'inspec.yml'))
             Dir.glob("#{dir}/controls/*.rb")
           else
-            Dir.glob("#{dir}/**/*.rb")
+            Dir.glob("#{dir}/**/*_test.rb")
           end
         end.flatten
       end

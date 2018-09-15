@@ -27,8 +27,8 @@ module RordanGramsay
       when 'init'
         action_init!
       else
-        $stderr.puts "Unknown action: #{@action.inspect}"
-        $stderr.puts @parser
+        warn "Unknown action: #{@action.inspect}"
+        warn @parser
       end
       @action_status = :complete
     end
@@ -42,20 +42,20 @@ module RordanGramsay
       when /(?:chef[_-])?(?:master|server)[_-]?rakefile$/i
         init_master_rakefile!
       else
-        $stderr.puts "Unknown subject: #{@subject.inspect}"
-        $stderr.puts @parser
+        warn "Unknown subject: #{@subject.inspect}"
+        warn @parser
       end
     end
 
     def cookbook_rakefile_contents
-      <<-EOF
-require '#{GEM_NAME}/chef_tasks/kitchen'
-require '#{GEM_NAME}/chef_tasks/lint'
-require '#{GEM_NAME}/chef_tasks/test'
+      <<~RAKEFILE
+        require '#{GEM_NAME}/chef_tasks/kitchen'
+        require '#{GEM_NAME}/chef_tasks/lint'
+        require '#{GEM_NAME}/chef_tasks/test'
 
-task default: ['lint']
-# Further rake tasks go here
-      EOF
+        task default: ['lint']
+        # Further rake tasks go here
+      RAKEFILE
     end
 
     def init_rakefile!
@@ -71,9 +71,9 @@ task default: ['lint']
     end
 
     def master_rakefile_contents
-      <<-EOF
-require '#{GEM_NAME}/chef_tasks/master_repo'
-      EOF
+      <<~RAKEFILE
+        require '#{GEM_NAME}/chef_tasks/master_repo'
+      RAKEFILE
     end
 
     def init_master_rakefile!

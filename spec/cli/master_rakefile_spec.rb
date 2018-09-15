@@ -1,7 +1,7 @@
 require_relative '../../lib/rordan_gramsay/cli'
 
 RSpec.describe RordanGramsay::CLI do
-  let(:default_args) { %w(init masterrakefile) }
+  let(:default_args) { %w[init masterrakefile] }
   let(:remaining_args) { default_args.dup }
   let(:cli) { described_class.new(remaining_args) }
 
@@ -48,15 +48,15 @@ RSpec.describe RordanGramsay::CLI do
       it 'should not modify the rakefile' do
         expect {
           capture_stdout_and_stderr { cli.call }
-        }.not_to change {
+        }.not_to(change {
           File.read('Rakefile')
-        }
+        })
       end
     end
   end
 
   context "with 'init masterrakefile --force' commands" do
-    let(:default_args) { %w(init masterrakefile --force) }
+    let(:default_args) { %w[init masterrakefile --force] }
 
     it 'should create a Rakefile' do
       rakefile_contents = '# master rakefile'

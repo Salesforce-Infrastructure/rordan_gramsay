@@ -15,7 +15,7 @@ module RordanGramsay
         @file_list = RordanGramsay::Rubocop::FileList.new
         @linter = nil
 
-        json = JSON.parse(`rubocop --require cookstyle --format json`)
+        json = JSON.parse(`cookstyle --format json`)
 
         json['files'].each do |file_json|
           file = @file_list[::File.expand_path(file_json['path'])]

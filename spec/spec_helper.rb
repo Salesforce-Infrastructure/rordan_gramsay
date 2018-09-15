@@ -120,18 +120,18 @@ end
 module ExampleRakefiles
   class << self
     def mono_repo
-      <<-EOF
-      require '#{File.expand_path('../', File.dirname(__FILE__))}/lib/rordan_gramsay/chef_tasks/master_repo'
-      EOF
+      <<~RAKEFILE
+        require '#{File.expand_path('../', File.dirname(__FILE__))}/lib/rordan_gramsay/chef_tasks/master_repo'
+      RAKEFILE
     end
 
     def cookbook_repo
-      <<-EOF
-      require '#{File.expand_path('../', File.dirname(__FILE__))}/lib/rordan_gramsay/chef_tasks/test'
+      <<~RAKEFILE
+        require '#{File.expand_path('../', File.dirname(__FILE__))}/lib/rordan_gramsay/chef_tasks/test'
 
-      task default: ['lint']
-      # Further rake tasks go here
-      EOF
+        task default: ['lint']
+        # Further rake tasks go here
+      RAKEFILE
     end
   end
 end
@@ -155,12 +155,151 @@ def setup_cookbook!(cookbook)
     FileUtils.mkdir_p 'attributes'
     FileUtils.mkdir_p 'libraries'
 
-    File.write('.kitchen.yml', "---\n")
+    File.write('.kitchen.yml', <<~KITCHEN)
+      ---
+      driver:
+        name: vagrant
+        gui: false
+        memory: 4096
+        linked_clone: true
+
+      provisioner:
+        name: chef_zero
+
+      verifier:
+        name: inspec
+
+      platforms:
+        - name: salesforce/server2016
+          transport:
+            name: winrm
+
+      suites:
+        - name: #{cookbook}
+          run_list:
+            - recipe[#{cookbook}::default]
+    KITCHEN
     File.write('Rakefile', ExampleRakefiles.cookbook_repo)
-    File.write('Berksfile', '')
-    File.write('metadata.rb', '')
-    File.write('recipes/default.rb', '')
-    File.write('attributes/default.rb', '')
+    File.write('Berksfile', <<~BERKS)
+      source :chef_server
+
+      metadata
+    BERKS
+    File.write('metadata.rb', <<~META)
+      name '#{cookbook}'
+    META
+    File.write('recipes/default.rb', <<~RECIPE)
+      #
+      # Cookbook:: #{cookbook}
+      # Recipe:: default
+      #
+      # Copyright 2001 FizzBuzz, All Rights Reserved
+    RECIPE
+    File.write('attributes/default.rb', <<~ATTRIBUTE)
+      #
+      # Cookbook:: #{cookbook}
+      # Attribute:: default
+      #
+      # Copyright 2001 FizzBuzz, All Rights Reserved
+    ATTRIBUTE
+    File.write('libraries/foo_bar.rb', <<~LIB)
+      #
+      # Cookbook:: #{cookbook}
+      # Library:: foo_bar
+      #
+      # Copyright 2001 FizzBuzz, All Rights Reserved
+    LIB
+
+    setup_nested_tests!(cookbook)
+  end
+end
+
+def setup_nested_tests!(cookbook)
+  FileUtils.mkdir_p File.join('test', 'attributes')
+  FileUtils.mkdir_p File.join('test', 'environments')
+  FileUtils.mkdir_p File.join('test', 'data_bags', 'dev')
+  FileUtils.mkdir_p File.join('test', 'integration', cookbook)
+
+  File.write(File.join('test', 'attributes', 'dev.yml'), <<~YML)
+    ---
+    fizz: 'buzz'
+  YML
+  File.write(File.join('test', 'environments', 'dev.json'), <<~JSON)
+    {}
+  JSON
+  File.write(File.join('test', 'data_bags', 'dev', 'some_data.json'), <<~JSON)
+    {}
+  JSON
+  FileUtils.cd(File.join('test', 'integration', cookbook)) do
+    FileUtils.mkdir_p 'controls'
+    FileUtils.mkdir_p 'files'
+    FileUtils.mkdir_p 'libraries'
+
+    File.write(File.join('controls', 'default.rb'), <<~INSPEC)
+      # encoding: utf-8
+
+      # InSpec control for #{cookbook}::default
+      #
+      # The InSpec reference, with examples and extensive documenation, can be found at the following URLs:
+      #   - https://www.inspec.io/docs/reference/resources/
+      #   - https://www.inspec.io/docs/reference/profiles/
+
+      control '#{cookbook}-default-baseline' do
+        title 'Baseline for #{cookbook}::default'
+        desc <<~EOH
+          Confirmation of the end-state after executing recipe[#{cookbook}::default]
+        EOH
+        impact 0.5
+
+        filename = if os.windows?
+                     'C:\\cheftest.txt'
+                   else
+                     '/tmp/cheftest.txt'
+                   end
+
+        describe file(filename) do
+          it { should exist }
+          its('content') { should include('Hello world!') }
+        end
+      end
+    INSPEC
+    File.write(File.join('libraries', 'resource.rb'), <<~LIB)
+      # encoding: utf-8
+      # frozen_string_literal: true
+
+      class MyResource < Inspec.resource(1) # :nodoc:
+        name 'resource'
+        desc 'Does stuff'
+        example <<~EOH
+          describe resource('fizz buzz') do
+            it { should exist }
+          end
+        EOH
+
+        def initialize(name)
+          @name = name
+        end
+
+        def exist?
+          false
+        end
+
+        def to_s
+          "Resource \#{@name}"
+        end
+      end
+    LIB
+    File.write('inspec.yml', <<~YML)
+      ---
+      name: '#{cookbook}-checks'
+      title: '#{cookbook} Checks'
+      maintainer: 'FizzBuzz'
+      copyright: 'FizzBuzz'
+      copyright_email: 'fizzbuzz@example.com'
+      license: 'All Rights Reserved'
+      summary: An InSpec Compliance Profile
+      version: 0.1.0
+    YML
   end
 end
 
@@ -201,6 +340,12 @@ def capture_stdout(&_block)
   fake.string
 end
 
+# USAGE:
+#
+#   err = capture_stderr { warn 'foo' }
+#   err == 'foo'
+#   # => true
+#
 def capture_stderr(&_block)
   original_stderr = $stderr
   $stderr = fake = StringIO.new

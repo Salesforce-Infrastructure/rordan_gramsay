@@ -6,6 +6,7 @@ RSpec.describe RordanGramsay::Lint::TestChecker do
 
   # Setup a new test environment each time
   around(:example) do |example|
+    FileUtils.mkdir_p('TEST_chef-repo/cookbooks')
     FileUtils.cd('TEST_chef-repo/cookbooks') { setup_cookbook! 'example' }
 
     with_monorepo('TEST_chef-repo') do
@@ -14,73 +15,52 @@ RSpec.describe RordanGramsay::Lint::TestChecker do
       end
     end
 
-    FileUtils.rm_r('TEST_chef-repo/cookbooks/example', force: true)
+    FileUtils.rm_r('TEST_chef-repo/cookbooks', force: true)
   end
 
   let(:obj) { described_class.new }
   let(:files) { obj.files.map { |f| obj.nice_filename(f) } }
 
-  let(:good_test) do
-    <<-EOF
-    # # encoding: utf-8
-
-    # Inspec test for recipe example::default
-
-    # The Inspec reference, with examples and extensive documentation, can be
-    # found at http://inspec.io/docs/reference/resources/
-
-    unless os.windows?
-      describe user('root') do
-        it { should exist }
-        # skip 'This is an example test, replace with your own test.'
-      end
-    end
-
-    filename = if os.windows?
-                 'C:\\\\cheftest.txt'
-               else
-                 '/tmp/cheftest.txt'
-               end
-
-    describe file(filename) do
-      it { should exist }
-      its('content') { should include('Hello world!') }
-    end
-    EOF
-  end
   let(:bad_test) do
-    <<-EOF
-    # # encoding: utf-8
+    <<~INSPEC
+      # encoding: utf-8
 
-    # Inspec test for recipe example::default
+      # Inspec test for recipe example::default
 
-    # The Inspec reference, with examples and extensive documentation, can be
-    # found at http://inspec.io/docs/reference/resources/
+      # The Inspec reference, with examples and extensive documentation, can be
+      # found at http://inspec.io/docs/reference/resources/
 
-    raise RuntimeError, 'Something went wrong'
-    EOF
+      raise RuntimeError, 'Something went wrong'
+    INSPEC
   end
 
   it 'should detect all files it needs to check' do
-    FileUtils.mkdir_p 'test/smoke/default'
-    FileUtils.mkdir_p 'test/smoke/other'
-    FileUtils.mkdir_p 'test/smoke/profile/controls'
-    FileUtils.mkdir_p 'test/smoke/profile/libraries'
+    %w[test/integration test/smoke].each do |base|
+      FileUtils.rm_r(base, force: true)
 
-    File.write('test/smoke/default/some_test.rb', '')
-    File.write('test/smoke/other/some_other_test.rb', '')
-    File.write('test/smoke/profile/inspec.yml', "---\n")
-    File.write('test/smoke/profile/libraries/foo_lib.rb', '')
-    File.write('test/smoke/profile/controls/awesome_stuff.rb', '')
-    File.write('test/smoke/profile/some_random_file.rb', '')
+      FileUtils.mkdir_p File.join(base, 'no_profile')
+      File.write(File.join(base, 'no_profile', 'some_test.rb'), '')
+      File.write(File.join(base, 'no_profile', 'some_random_file.rb'), '')
+
+      FileUtils.mkdir_p File.join(base, 'profile', 'controls')
+      File.write(File.join(base, 'profile', 'controls', 'default.rb'), '')
+      FileUtils.mkdir_p File.join(base, 'profile', 'files')
+      File.write(File.join(base, 'profile', 'files', 'fizz_buzz.rb'), '')
+      FileUtils.mkdir_p File.join(base, 'profile', 'libraries')
+      File.write(File.join(base, 'profile', 'libraries', 'resource.rb'), '')
+      File.write(File.join(base, 'profile', 'inspec.yml'), '')
+    end
 
     expect(files).not_to be_empty
-    expect(files).to include 'test/smoke/default/some_test.rb'
-    expect(files).to include 'test/smoke/other/some_other_test.rb'
-    expect(files).not_to include 'test/smoke/profile/inspec.yml'
-    expect(files).not_to include 'test/smoke/profile/libraries/foo_lib.rb'
-    expect(files).to include 'test/smoke/profile/controls/awesome_stuff.rb'
-    expect(files).not_to include 'test/smoke/profile/some_random_file.rb'
+    %w[test/integration test/smoke].each do |base|
+      expect(files).to include File.join(base, 'no_profile', 'some_test.rb')
+      expect(files).not_to include File.join(base, 'no_profile', 'some_random_file.rb')
+
+      expect(files).to include File.join(base, 'profile', 'controls', 'default.rb')
+      expect(files).not_to include File.join(base, 'profile', 'libraries', 'resource.rb')
+      expect(files).not_to include File.join(base, 'profile', 'files', 'fizz_buzz.rb')
+      expect(files).not_to include File.join(base, 'profile', 'inspec.yml')
+    end
   end
 
   it 'displays files with absolute path' do
@@ -89,35 +69,27 @@ RSpec.describe RordanGramsay::Lint::TestChecker do
 
   context 'when file exists but is empty' do
     before(:each) do
-      FileUtils.mkdir_p 'test/smoke/default'
-      File.write('test/smoke/default/some_test.rb', "\n\n\n")
+      File.write('test/integration/example/controls/default.rb', "\n\n\n")
     end
 
     it 'prints a failure message' do
       stdout, = capture_stdout_and_stderr { obj.call }
 
-      expect(stdout).to match(%r{^.*test/smoke/default/some_test\.rb.+Failed.*$})
+      expect(stdout).to match(%r{^.*test/integration/example/controls/default\.rb.+Failed.*$})
     end
 
     it 'prints the reason for the failure' do
       stdout, = capture_stdout_and_stderr { obj.call }
 
-      expect(stdout).to match(%r{^.*test/smoke/default/some_test\.rb.+Failed.+missing_tests.*$})
+      expect(stdout).to match(%r{^.*test/integration/example/controls/default\.rb.+Failed.+missing_tests.*$})
     end
   end
 
   context 'when all files have tests' do
-    before(:each) do
-      FileUtils.mkdir_p 'test/smoke/default'
-      File.write('test/smoke/default/some_test.rb', good_test)
-      File.write('test/smoke/default/some_other_test.rb', good_test)
-    end
-
     it 'prints a success message' do
       stdout, = capture_stdout_and_stderr { obj.call }
 
-      expect(stdout).to match(%r{^.*test/smoke/default/some_test\.rb.+Passed.*$})
-      expect(stdout).to match(%r{^.*test/smoke/default/some_other_test\.rb.+Passed.*$})
+      expect(stdout).to match(%r{^.*test/integration/example/controls/default\.rb.+Passed.*$})
     end
   end
 
@@ -129,14 +101,12 @@ RSpec.describe RordanGramsay::Lint::TestChecker do
 
   context 'when checking the error count after running the linter' do
     it 'gives an integer with the number of files errored' do
-      FileUtils.mkdir_p 'test/smoke/default'
-      File.write('test/smoke/default/some_test.rb', bad_test)
-      File.write('test/smoke/default/some_other_test.rb', bad_test)
+      File.write('test/integration/example/controls/default.rb', bad_test)
 
       capture_stdout_and_stderr { obj.call }
 
       expect { obj.error_count }.not_to raise_error
-      expect(obj.error_count).to eq 2
+      expect(obj.error_count).to eq 1
     end
   end
 end

@@ -6,6 +6,7 @@ RSpec.describe RordanGramsay::Lint::Foodcritic do
 
   # Setup a new test environment each time
   around(:example) do |example|
+    FileUtils.mkdir_p('TEST_chef-repo/cookbooks')
     FileUtils.cd('TEST_chef-repo/cookbooks') { setup_cookbook! 'example' }
 
     with_monorepo('TEST_chef-repo') do
@@ -14,7 +15,7 @@ RSpec.describe RordanGramsay::Lint::Foodcritic do
       end
     end
 
-    FileUtils.rm_r('TEST_chef-repo/cookbooks/example', force: true)
+    FileUtils.rm_r('TEST_chef-repo/cookbooks', force: true)
   end
 
   let(:obj) { described_class.new }

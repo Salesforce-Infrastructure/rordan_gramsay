@@ -1,5 +1,5 @@
 RSpec.describe 'Mono-Repo' do
-  let(:cookbook_names) { %w(example other_example) }
+  let(:cookbook_names) { %w[example other_example] }
   let(:all_tasks) do
     `rake -AT`.lines.map { |t| t.sub(/^\s*rake\s+([^\s]+)\s+#.*$/i, '\1').chomp }
   end
@@ -10,7 +10,7 @@ RSpec.describe 'Mono-Repo' do
   before(:all) do
     setup_monorepo! 'TEST_chef-repo'
     FileUtils.cd('TEST_chef-repo/cookbooks') do
-      %w(example other_example).each { |cookbook| setup_cookbook! cookbook }
+      %w[example other_example].each { |cookbook| setup_cookbook! cookbook }
     end
   end
   after(:all) { teardown_monorepo! 'TEST_chef-repo' }

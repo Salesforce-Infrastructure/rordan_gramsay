@@ -1,7 +1,7 @@
 require_relative '../lib/rordan_gramsay/cli'
 
 RSpec.describe RordanGramsay::CLI do
-  let(:default_args) { %w(init rakefile --force) }
+  let(:default_args) { %w[init rakefile --force] }
   let(:remaining_args) { default_args.dup }
   let(:cli) { described_class.new(remaining_args) }
 
@@ -40,7 +40,7 @@ RSpec.describe RordanGramsay::CLI do
   end
 
   context 'when an unknown subcommand is given' do
-    let(:default_args) { %w(derpyflerp hoo-ah) }
+    let(:default_args) { %w[derpyflerp hoo-ah] }
 
     it 'prints an error message to STDERR' do
       expect { cli }.not_to raise_error
@@ -53,7 +53,7 @@ RSpec.describe RordanGramsay::CLI do
   end
 
   context 'when a known subcommand but unknown subject is given' do
-    let(:default_args) { %w(init asdflkj) }
+    let(:default_args) { %w[init asdflkj] }
 
     it 'prints an error message to STDERR' do
       expect { cli }.not_to raise_error
@@ -66,7 +66,7 @@ RSpec.describe RordanGramsay::CLI do
   end
 
   context "when '--version' is given" do
-    let(:default_args) { %w(init --version) }
+    let(:default_args) { %w[init --version] }
 
     it 'does not process any subcommands' do
       capture_stdout_and_stderr { cli }
@@ -87,7 +87,7 @@ RSpec.describe RordanGramsay::CLI do
   end
 
   context "when '--help' is given" do
-    let(:default_args) { %w(init --help) }
+    let(:default_args) { %w[init --help] }
 
     it 'does not process any subcommands' do
       capture_stdout_and_stderr { cli }

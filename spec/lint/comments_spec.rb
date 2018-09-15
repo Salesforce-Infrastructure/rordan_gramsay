@@ -6,6 +6,7 @@ RSpec.describe RordanGramsay::Lint::CookbookCommentsChecker do
 
   # Setup a new test environment each time
   around(:example) do |example|
+    FileUtils.mkdir_p('TEST_chef-repo/cookbooks')
     FileUtils.cd('TEST_chef-repo/cookbooks') { setup_cookbook! 'example' }
 
     with_monorepo('TEST_chef-repo') do
@@ -14,20 +15,20 @@ RSpec.describe RordanGramsay::Lint::CookbookCommentsChecker do
       end
     end
 
-    FileUtils.rm_r('TEST_chef-repo/cookbooks/example', force: true)
+    FileUtils.rm_r('TEST_chef-repo/cookbooks', force: true)
   end
 
   let(:obj) { described_class.new }
   let(:files) { obj.files.map { |f| obj.nice_filename(f) } }
 
   it 'should detect all files it needs to check' do
-    File.write('attributes/default.rb', '')
-    File.write('attributes/testing.json', "{\n  \"some_key\": \"some value\"\n}\n")
+    File.write('attributes/testing.json', '')
 
     expect(files).not_to be_empty
     expect(files).to include 'recipes/default.rb'
     expect(files).to include 'attributes/default.rb'
     expect(files).not_to include 'attributes/testing.json'
+    expect(files).not_to include 'metadata.rb'
   end
 
   it 'displays files with absolute path' do
@@ -35,26 +36,19 @@ RSpec.describe RordanGramsay::Lint::CookbookCommentsChecker do
   end
 
   context 'when files have first 15 lines starting with "#"' do
-    before(:each) do
-      File.write('recipes/default.rb', "# some comment\n" * 15)
-      File.write('libraries/foo_bar.rb', "# some other comment\n" * 15)
-      File.write('attributes/testing.rb', "# some test comment\n" * 15)
-    end
-
     it 'prints success message for each file' do
       stdout, = capture_stdout_and_stderr { obj.call }
 
       expect(stdout).to match(%r{^.*recipes/default\.rb.+Passed.*$})
       expect(stdout).to match(%r{^.*libraries/foo_bar\.rb.+Passed.*$})
-      expect(stdout).to match(%r{^.*attributes/testing\.rb.+Passed.*$})
+      expect(stdout).to match(%r{^.*attributes/default\.rb.+Passed.*$})
     end
   end
 
   context 'when file does not have sufficient comment lines' do
     before(:each) do
-      File.write('recipes/default.rb', "# some comment\n" * 15)
       File.write('libraries/foo_bar.rb', ("# some other comment\n" * 2) + ("puts 'hello world'\n" * 3))
-      File.write('attributes/testing.rb', "# some test comment\n" + ("puts 'no attributes to be found'\n" * 9))
+      File.write('attributes/default.rb', "# some test comment\n" + ("puts 'no attributes to be found'\n" * 9))
     end
 
     it 'prints failure message for each affected file' do
@@ -62,14 +56,14 @@ RSpec.describe RordanGramsay::Lint::CookbookCommentsChecker do
 
       expect(stdout).to match(%r{^.*recipes/default\.rb.+Passed.*$})
       expect(stdout).to match(%r{^.*libraries/foo_bar\.rb.+Failed.*$})
-      expect(stdout).to match(%r{^.*attributes/testing\.rb.+Failed.*$})
+      expect(stdout).to match(%r{^.*attributes/default\.rb.+Failed.*$})
     end
 
     it 'prints the reason for the failure' do
       stdout, = capture_stdout_and_stderr { obj.call }
 
       expect(stdout).to match(%r{^.*libraries/foo_bar\.rb.+Failed.+missing.+comments_at_top_of_file.*$})
-      expect(stdout).to match(%r{^.*attributes/testing\.rb.+Failed.+missing.+comments_at_top_of_file.*$})
+      expect(stdout).to match(%r{^.*attributes/default\.rb.+Failed.+missing.+comments_at_top_of_file.*$})
     end
   end
 
@@ -80,11 +74,12 @@ RSpec.describe RordanGramsay::Lint::CookbookCommentsChecker do
   end
 
   context 'when checking the error count after running the linter' do
-    it 'gives an integer with the number of files errored' do
-      File.write('recipes/default.rb', "# some comment\n" * 15)
+    before(:each) do
       File.write('libraries/foo_bar.rb', ("# some other comment\n" * 2) + ("puts 'hello world'\n" * 3))
-      File.write('attributes/testing.rb', "# some test comment\n" + ("puts 'no attributes to be found'\n" * 9))
+      File.write('attributes/default.rb', "# some test comment\n" + ("puts 'no attributes to be found'\n" * 9))
+    end
 
+    it 'gives an integer with the number of files errored' do
       capture_stdout_and_stderr { obj.call }
 
       expect { obj.error_count }.not_to raise_error

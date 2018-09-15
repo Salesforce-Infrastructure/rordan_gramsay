@@ -89,7 +89,7 @@ module RordanGramsay
       def default_opts
         {
           cookbook_paths: [Dir.pwd],
-          exclude_paths: %w(test/**/* spec/**/* features/**/*),
+          exclude_paths: %w[test/**/* spec/**/* features/**/*],
           fail_tags: ['any'],
           tags: []
         }

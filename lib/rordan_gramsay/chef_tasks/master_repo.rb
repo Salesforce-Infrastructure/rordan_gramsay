@@ -18,6 +18,7 @@ def run_command(cmd, log)
       # Finished giving output or otherwise a broken pipe
     end
   end
+  # rubocop:enable Lint/HandleExceptions
 
   log.info 'Cleaning up...'
 end

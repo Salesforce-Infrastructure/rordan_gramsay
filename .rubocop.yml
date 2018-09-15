@@ -29,17 +29,21 @@ Metrics/MethodLength:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Max: 10
+  Max: 12
+
+Naming/FileName:
+  Exclude:
+    - '.simplecov'
 
 Style/BlockDelimiters:
   Exclude:
     - 'spec/**/*_spec.rb'
 
-Style/FileName:
-  Exclude:
-    - '.simplecov'
-
+# These two are for supporting usage of the `paint` gem
 Style/FormatString:
+  Enabled: false
+
+Style/FormatStringToken:
   Enabled: false
 
 Style/FrozenStringLiteralComment:

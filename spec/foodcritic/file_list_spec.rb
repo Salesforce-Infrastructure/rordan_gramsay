@@ -96,9 +96,9 @@ RSpec.describe RordanGramsay::Foodcritic::FileList do
     it 'creates a new File with the given filename if the key does not exist' do
       expect {
         subject['file_a.rb']
-      }.to change {
+      }.to(change {
         subject.send(:instance_variable_get, :@files).key? 'file_a.rb'
-      }
+      })
     end
   end
 end

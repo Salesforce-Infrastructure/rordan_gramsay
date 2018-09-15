@@ -26,7 +26,7 @@ module RordanGramsay
         # Just in case default for the box is not set to headless,
         # all Windows VMs should have "gui: false" by default
         def no_windows_gui?
-          @inspec ||= begin
+          @no_windows_gui ||= begin
             if @lines.any? { |line| line =~ /winrm/i }
               @lines.any? { |line| line =~ /^.*(?<!#).*\s+gui:\s+(?:false|no?|off)\s*$/i }
             else

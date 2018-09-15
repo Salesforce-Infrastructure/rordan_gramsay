@@ -3,11 +3,18 @@
 We follow [Semantic Versioning](http://semver.org/) as a way of measuring stability of an update. This
 means we will never make a backwards-incompatible change within a major version of the project.
 
-## _[UNRELEASED]_
+## v1.4.0 (2018-09-15)
 
 - Adds Simplecov for measuring test coverage
 - Increases test coverage
 - [BUG] Spelling inconsistencies (`Pass` -> `Passed`, `Fail` -> `Failed`, `Foodcritic` -> `FoodCritic`)
+- Centralizes generating test data for a cookbook (or monolithic repository) to one spot
+- Fixes tons of rubocop errors
+- [BUG] Undeclared dependency: `foodcritic`
+- Upgrades dependencies to be based on what is available as part of ChefDK v3.1.0
+- [BUG] Processes `*.rb` files in non-profile InSpec directory, when InSpec only processes `*_test.rb`
+- Adds support for detecting BSD licenses
+- Supports reading `.foodcritic` file for rule skips
 
 ## v1.3.2 (2017-06-08)
 

@@ -33,6 +33,6 @@ task :_guard_against_focus do
   abort "PRECONDITION FAILURE:\n\t- #{errors.join("\n\t- ")}" unless errors.empty?
 end
 
-task ci: %w(_guard_against_focus spec)
+task ci: %w[_guard_against_focus spec]
 
-task default: %w(spec)
+task default: %w[spec]

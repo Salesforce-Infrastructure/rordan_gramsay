@@ -7,9 +7,15 @@ namespace :lint do
   task :foodcritic do
     puts Paint['Inspecting files with FoodCritic', :yellow, :bold]
 
+    tags = if File.exist?('.foodcritic')
+             File.read('.foodcritic').lines.map(&:strip)
+           else
+             %w[~FC001 ~FC003 ~FC019 ~FC023 ~FC064 ~FC065 ~FC066 ~license]
+           end
+
     task_obj = RordanGramsay::Lint::Foodcritic.new(
       fail_tags: ['any'],
-      tags: %w(~FC001 ~FC003 ~FC019 ~FC023 ~FC064 ~FC065 ~FC066 ~license)
+      tags: tags
     )
 
     task_obj.call

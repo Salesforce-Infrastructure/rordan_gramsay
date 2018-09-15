@@ -16,7 +16,7 @@ module RordanGramsay
         def initialize(file_name)
           @file_name = file_name
           # Limit read to first 30 lines of file
-          @lines = File.foreach(file_name).first(30)
+          @lines = ::File.foreach(file_name).first(30)
         end
 
         # Detects if authorship line is included
@@ -35,7 +35,7 @@ module RordanGramsay
         def copyright?
           @copyright ||= @lines.any? do |line|
             break true if line =~ /(?:^| )\(c\)(?:$| )/i # copyright symbol as "(c)"
-            break true if line.includes? '©' # Actual copyright symbol
+            break true if line.include? '©' # Actual copyright symbol
             break true if line =~ /copyright/i
             break true if line =~ /&copy;/i # HTML entity is still indicative of copyright
 
@@ -46,10 +46,11 @@ module RordanGramsay
         # Detects if there is a date (e.g., copyright date or date of authorship) included
         def date?
           @date ||= @lines.any? do |line|
-            break true if line =~ /(?:mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nes(?:day)?)?|thu(?:rs(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)/i
-            break true if line =~ %r{(?:/|-|\(| |^)20[012][0-9](?:/|-|\)| |$)}i # some year between 2000 and 2029
+            break true if line =~ %r{(?:/|-|\(| |^)(?:20|19)[0-9]{2}(?:/|-|\)| |$)}i # some year between 1900 and 2099
             # Similar to ISO date format (e.g., 2017-03-14, 2010/11/19, 2001/9/3)
-            break true if line =~ %r{(?<year>(?:20|19)[0-9][0-9])[/-](?<month>0?[1-9]|1[0-2])[/-](?<day>0?[1-9]|[1,2][0-9]|3[01])}i
+            break true if line =~ %r{(?<year>(?:20|19)[0-9]{2})[/-](?<month>0?[1-9]|1[0-2])[/-](?<day>0?[1-9]|[1,2][0-9]|3[01])}i
+            # Just a given year
+            break true if line =~ /\b(?:20|19)[0-9]{2}\b/i
 
             false
           end
@@ -62,6 +63,7 @@ module RordanGramsay
             break true if line =~ /all rights(?: reserved)?/i # "All rights reserved"
 
             # Popular licenses
+            break true if line =~ /(?:^|\W)\(?BSD(?:v?3)\)?(?:$|\W)/ # "BSD", "BSD3", "BSDv3" or wrapping any of those in parentheses
             break true if line =~ /(?:^|\W)\(?MIT\)?(?:$|\W)/ # "MIT" or "(MIT)"
             break true if line =~ /(?:^|\W)Apache(?:$|\W)/i # "Apache"
             break true if line =~ /(?:^|\W)Creative Commons(?:$|\W)/i
@@ -90,9 +92,9 @@ module RordanGramsay
         @files.each do |file|
           errors = []
           # errors << :author unless file.author?
-          # errors << :license unless file.license?
-          # errors << :copyright unless file.copyright?
-          # errors << :date unless file.date?
+          errors << :license unless file.license?
+          errors << :copyright unless file.copyright?
+          errors << :date unless file.date?
           errors << :comments_at_top_of_file unless file.leading_comment_lines?
 
           # Compile the error message
@@ -117,7 +119,7 @@ module RordanGramsay
       end
 
       def files
-        Dir.glob("#{base_dir}/{attributes,recipes,libraries}/**/*.rb")
+        ::Dir.glob(::File.join(base_dir, '{attributes,recipes,resources,libraries}', '**', '*.rb'))
       end
 
       private

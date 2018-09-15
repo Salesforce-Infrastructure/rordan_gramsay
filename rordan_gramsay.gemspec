@@ -1,5 +1,3 @@
-# coding: utf-8
-
 require_relative 'lib/rordan_gramsay/version'
 
 Gem::Specification.new do |spec|
@@ -11,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %(Tools for automating development)
   spec.description   = %(Tools for automating development)
   spec.homepage      = 'https://github.com/Salesforce-Infrastructure/rordan_gramsay'
-  spec.license       = 'All Rights Reserved'
+  spec.license       = 'BSDv3'
 
   raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.' unless spec.respond_to?(:metadata)
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
@@ -21,13 +19,13 @@ Gem::Specification.new do |spec|
   spec.executables = [RordanGramsay::EXECUTABLE]
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'rake', '>= 10.0.0'
+  spec.add_runtime_dependency 'cookstyle', '~> 3.0'
+  spec.add_runtime_dependency 'foodcritic', '~> 14.0'
   spec.add_runtime_dependency 'paint', '~> 2.0'
+  spec.add_runtime_dependency 'rake', '>= 10.0.0'
 
   spec.add_development_dependency 'bundler', '~> 1.14'
-  spec.add_development_dependency 'overcommit', '~> 0.39.1'
-  spec.add_development_dependency 'rubocop', '~> 0.47.1'
-  spec.add_development_dependency 'rspec', '>= 3.0'
   spec.add_development_dependency 'mdl'
+  spec.add_development_dependency 'rspec', '>= 3.0'
   spec.add_development_dependency 'simplecov'
 end
