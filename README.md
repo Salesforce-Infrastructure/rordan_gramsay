@@ -105,6 +105,26 @@ of the cookbook project directory and it will lay down a Rakefile with those con
 
 ### Cookbook testing
 
+For an individual cookbook repository, include a Rakefile with the following contents:
+
+```ruby
+require 'rordan_gramsay/chef_tasks/lint'
+require 'rordan_gramsay/chef_tasks/kitchen'
+require 'rordan_gramsay/chef_tasks/test'
+
+task default: ['test:all']
+```
+
+This will provide the following testing and dependency management options from the command line:
+
+```
+$ rake -T
+
+  rake kitchen             # Runs integration tests using Test Kitchen
+  rake lint                # Lints cookbook using all tools
+  rake test                # Runs all linting and integration tests
+```
+
 ### Lint testing only
 
 Include the following contents in your Rakefile:
@@ -134,7 +154,7 @@ declare the dependency on A to have the metadata reflect the resolved versions o
 `metadata.rb`. This way we can resolve the dependency graph ahead of time and leave the executing of those
 cookbooks to `chef-client` at runtime.
 
-Cookbooks that have their name starting with `role_` or `wrapper_` will be treated as a wrapper cookbook
+Cookbooks that have their name starting with `role_` or `wrapper_` will be treated as a [wrapper cookbook][wrapper-cookbook]
 and be subject to these deterministic builds (e.g., `depends 'cats', '= 1.2.3'`). All other cookbooks will
 be treated like library cookbooks and have the pessimistic version constraint operator (`~>`). This ensures
 their dependencies always remain in the same major version, so `depends 'cats', '~> 3.0'` ensures a cookbook
@@ -157,6 +177,8 @@ $ rake -T
   rake dependency:pin      # Pin dependencies
   rake dependency:update   # Update dependency graph
 ```
+
+[wrapper-cookbook]: https://blog.chef.io/2017/02/14/writing-wrapper-cookbooks/
 
 ## Contributing
 
