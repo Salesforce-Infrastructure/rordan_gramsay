@@ -3,6 +3,12 @@
 We follow [Semantic Versioning](http://semver.org/) as a way of measuring stability of an update. This
 means we will never make a backwards-incompatible change within a major version of the project.
 
+## v2.0.0 (2018-09-17)
+
+- [BREAKING] Removes support for mono-repo Rakefile
+- Alters `gramsay` command to not need a subject anymore (given no mono-repo support)
+- Adds dependency management helpers for deterministic builds in wrapper cookbooks
+
 ## v1.4.0 (2018-09-15)
 
 - Adds Simplecov for measuring test coverage

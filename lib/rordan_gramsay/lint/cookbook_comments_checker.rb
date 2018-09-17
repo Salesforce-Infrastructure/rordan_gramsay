@@ -1,5 +1,5 @@
-require_relative 'base'
 require 'paint'
+require_relative 'base'
 
 module RordanGramsay
   module Lint

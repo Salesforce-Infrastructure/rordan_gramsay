@@ -1,4 +1,5 @@
 require 'rake'
+require 'paint'
 require_relative '../../lint/cookbook_comments_checker'
 
 namespace :lint do

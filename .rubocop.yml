@@ -10,7 +10,7 @@ Lint/HandleExceptions:
     - '**/*.rake'
 
 Metrics/AbcSize:
-  Max: 30
+  Max: 35
 
 Metrics/BlockLength:
   Exclude:
@@ -47,4 +47,11 @@ Style/FormatStringToken:
   Enabled: false
 
 Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Currently this rule is buggy, so we'll just skip it
+Style/Next:
+  Enabled: false
+
+Style/StderrPuts:
   Enabled: false

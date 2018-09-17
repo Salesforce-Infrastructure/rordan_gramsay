@@ -17,7 +17,6 @@ module RordanGramsay
       @parser = setup_parser
       @parser.parse(@args)
       @action = @args.shift unless @args.empty?
-      @subject = @args.shift unless @args.empty?
     end
 
     def call
@@ -36,19 +35,12 @@ module RordanGramsay
     private
 
     def action_init!
-      case @subject
-      when /^rakefile$/i
-        init_rakefile!
-      when /(?:chef[_-])?(?:master|server)[_-]?rakefile$/i
-        init_master_rakefile!
-      else
-        warn "Unknown subject: #{@subject.inspect}"
-        warn @parser
-      end
+      init_rakefile!
     end
 
     def cookbook_rakefile_contents
       <<~RAKEFILE
+        require '#{GEM_NAME}/chef_tasks/dependencies'
         require '#{GEM_NAME}/chef_tasks/kitchen'
         require '#{GEM_NAME}/chef_tasks/lint'
         require '#{GEM_NAME}/chef_tasks/test'
@@ -70,37 +62,16 @@ module RordanGramsay
       puts 'Created Rakefile in current directory for handling the cookbook development lifecycle'
     end
 
-    def master_rakefile_contents
-      <<~RAKEFILE
-        require '#{GEM_NAME}/chef_tasks/master_repo'
-      RAKEFILE
-    end
-
-    def init_master_rakefile!
-      if File.exist? 'Rakefile'
-        puts 'Rakefile already exists.'
-        return unless @opt.force
-        puts 'Overwriting...'
-      end
-
-      write_to_rakefile master_rakefile_contents
-
-      puts 'Created Rakefile in current directory for handling multiple, nested cookbooks'
-    end
-
     def write_to_rakefile(content)
       File.write('Rakefile', content)
     end
 
     def setup_parser
       OptionParser.new do |o|
-        o.banner = "Usage: #{EXECUTABLE} [options] [action] [subject]"
+        o.banner = "Usage: #{EXECUTABLE} [options] [action]"
 
         o.separator ''
         o.separator 'Possible actions: {init}'
-
-        o.separator ''
-        o.separator 'Possible subjects: {Rakefile,MasterRakefile}'
 
         o.separator ''
         o.separator 'Common options:'

@@ -1,3 +1,4 @@
+require 'paint'
 require_relative '../../rordan_gramsay'
 RordanGramsay.silence_warnings do
   require 'foodcritic'

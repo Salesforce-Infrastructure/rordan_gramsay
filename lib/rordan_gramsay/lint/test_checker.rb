@@ -1,3 +1,4 @@
+require 'paint'
 require_relative 'base'
 
 module RordanGramsay

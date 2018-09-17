@@ -1,4 +1,5 @@
 require 'json'
+require 'paint'
 
 require_relative 'base'
 require_relative '../rubocop/file_list'

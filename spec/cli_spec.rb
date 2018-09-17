@@ -29,10 +29,6 @@ RSpec.describe RordanGramsay::CLI do
       expect(cli.send(:instance_variable_get, :@action)).to eq default_args[0]
     end
 
-    it 'detects the subject of the subcommand' do
-      expect(cli.send(:instance_variable_get, :@subject)).to eq default_args[1]
-    end
-
     it 'detects CLI flags' do
       expect(cli.opt.force).to eq default_args.include?('--force')
       expect(cli.opt.debug).to eq default_args.include?('--debug')
@@ -41,19 +37,6 @@ RSpec.describe RordanGramsay::CLI do
 
   context 'when an unknown subcommand is given' do
     let(:default_args) { %w[derpyflerp hoo-ah] }
-
-    it 'prints an error message to STDERR' do
-      expect { cli }.not_to raise_error
-
-      stdout, stderr = capture_stdout_and_stderr { cli.call }
-
-      expect(stderr).not_to be_empty
-      expect(stdout).to be_empty
-    end
-  end
-
-  context 'when a known subcommand but unknown subject is given' do
-    let(:default_args) { %w[init asdflkj] }
 
     it 'prints an error message to STDERR' do
       expect { cli }.not_to raise_error

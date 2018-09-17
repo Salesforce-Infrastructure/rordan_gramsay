@@ -5,7 +5,7 @@ namespace :test do
 
   task slow: ['kitchen:test']
 
-  task quick: ['lint:all']
+  task quick: ['dependency:check', 'lint:all']
 end
 desc 'Runs all linting and integration tests'
 task test: ['test:all']

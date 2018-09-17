@@ -72,29 +72,38 @@ You will need to include this in your Rakefile located in each recipe directory.
 this will be a full test, but there are options to use only a smaller set of tests if you
 choose.
 
-### Full cookbook testing (usually what you want as this is the gate to production)
+### Everything (usually what you want)
 
 For an individual cookbook repository, include a Rakefile with the following contents:
 
 ```ruby
+require 'rordan_gramsay/chef_tasks/dependencies'
 require 'rordan_gramsay/chef_tasks/lint'
 require 'rordan_gramsay/chef_tasks/kitchen'
 require 'rordan_gramsay/chef_tasks/test'
 
-task default: ['test:all']
+task default: ['lint:all']
 ```
 
-This will provide the following testing options from the command line:
+This will provide the following testing and dependency management options from the command line:
 
 ```
 $ rake -T
 
-  rake kitchen  # Runs integration tests using Test Kitchen
-  rake lint     # Lints cookbook using all tools
-  rake test     # Runs all linting and integration tests
+  rake dependency:check    # Check if version pinning is done correctly
+  rake dependency:clean    # Remove pinned dependencies from metadata.rb
+  rake dependency:migrate  # [EXPERIMENTAL] Migrate cookbook dependencies from metadata.rb to Berksfile (for use with dependency:pin task)
+  rake dependency:pin      # Pin dependencies
+  rake dependency:update   # Update dependency graph
+  rake kitchen             # Runs integration tests using Test Kitchen
+  rake lint                # Lints cookbook using all tools
+  rake test                # Runs all linting and integration tests
 ```
 
-For a monolithic repo style of cookbook tracking, see the **Recursive testing** section below.
+Rather than copy-paste, if you have this gem installed you may also run `gramsay init` in the base
+of the cookbook project directory and it will lay down a Rakefile with those contents for you.
+
+### Cookbook testing
 
 ### Lint testing only
 
@@ -114,15 +123,27 @@ $ rake -T
   rake lint  # Lints cookbook using all tools
 ```
 
-### Recursive testing
+### Dependency management
 
-For a monolithic repository situation, where multiple cookbooks are stored in the
-`cookbooks/` directory relative to the project root, there is a set of rake tasks to
-handle this mass testing. Add the following to a Rakefile in the monolithic repo root
-directory:
+Long story short, Berkshelf has a much richer ecosystem for handling cookbook dependencies with more
+nuance than the built-in Chef dependency resolver. To facilitate deterministic builds with a wrapper-cookbook
+approach, we have a set of rake tasks to handle pinning to exact versions of all dependencies.
+
+Pinning a dependency A that depends on B which, in turn, depends on C makes it so that you only need to
+declare the dependency on A to have the metadata reflect the resolved versions of A, B, and C in the
+`metadata.rb`. This way we can resolve the dependency graph ahead of time and leave the executing of those
+cookbooks to `chef-client` at runtime.
+
+Cookbooks that have their name starting with `role_` or `wrapper_` will be treated as a wrapper cookbook
+and be subject to these deterministic builds (e.g., `depends 'cats', '= 1.2.3'`). All other cookbooks will
+be treated like library cookbooks and have the pessimistic version constraint operator (`~>`). This ensures
+their dependencies always remain in the same major version, so `depends 'cats', '~> 3.0'` ensures a cookbook
+matching both `>= 3.0.0` and `< 4.0.0`.
 
 ```ruby
-require 'rordan_gramsay/chef_tasks/master_repo'
+require 'rordan_gramsay/chef_tasks/dependencies'
+
+task default: ['dependency:check']
 ```
 
 This will provide the following testing options from the command line:
@@ -130,12 +151,12 @@ This will provide the following testing options from the command line:
 ```
 $ rake -T
 
-  rake lint  # Runs linting, style checks, and overall formatting checks for each cookbook
-  rake test  # Runs all linting and tests on all cookbooks
+  rake dependency:check    # Check if version pinning is done correctly
+  rake dependency:clean    # Remove pinned dependencies from metadata.rb
+  rake dependency:migrate  # [EXPERIMENTAL] Migrate cookbook dependencies from metadata.rb to Berksfile (for use with dependency:pin task)
+  rake dependency:pin      # Pin dependencies
+  rake dependency:update   # Update dependency graph
 ```
-
-In order to make use of this, each cookbook repo must also implement the tasks defined
-in the cookbook Rakefiles.
 
 ## Contributing
 
