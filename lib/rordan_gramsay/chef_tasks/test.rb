@@ -12,3 +12,4 @@ task test: ['test:all']
 
 require_relative 'lint'
 require_relative 'kitchen'
+require_relative 'dependencies'

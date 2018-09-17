@@ -3,6 +3,12 @@
 We follow [Semantic Versioning](http://semver.org/) as a way of measuring stability of an update. This
 means we will never make a backwards-incompatible change within a major version of the project.
 
+## v2.0.2 (2018-09-17)
+
+- Adds missing dependencies to gemspec for berkshelf and chef (dependency management)
+- [BUG] `rake dependency:update` leaves dependencies in wrapper cookbook on older than latest allowable version, per constraints defined in `Berksfile`
+- [BUG] `berks` commands seem unresponsive due to no output to STDOUT
+
 ## v2.0.1 (2018-09-17)
 
 - Adds missing spec for minimum ruby version supported (v2.3.0 or higher in the v2.x release)

@@ -2,6 +2,7 @@ require 'English'
 require 'berkshelf'
 require 'chef/cookbook/metadata'
 require_relative 'exceptions'
+require_relative '../rordan_gramsay'
 
 module RordanGramsay
   module Dependencies
@@ -36,136 +37,20 @@ module RordanGramsay
         end
       rescue FileMissing
         $stdout.puts('berks install')
-        out = `berks install`
+        RordanGramsay.stream_command('berks install')
         retry if $CHILD_STATUS.success?
-        raise out
       end
     end
 
     # :nodoc:
-    class Pinning
-      extend Forwardable
-      include FileAccessor
-
+    module Helpers
       def initialize
-        @obj = if metadata.name =~ /^(?:role|wrapper)_/i
-                 WrapperPinning.new
-               else
-                 CookbookPinning.new
-               end
-      end
-
-      def_delegators :@obj, :call, :check, :clean, :migrate, :dependencies, :failure?
-    end
-
-    # Most cookbooks should use this, unless you desire a layout
-    # where the cookbook represents a versioned runlist and
-    # default attributes in its entirety. This would then be known
-    # as a role- or a wrapper-cookbook and instead use the
-    # `WrapperPinning` class.
-    class CookbookPinning
-      include FileAccessor
-
-      def initialize
+        super
         @is_fail = false
       end
 
       def failure?
         @is_fail
-      end
-
-      def call
-        File.open('metadata.new.rb', 'w') do |fd|
-          File.readlines(metadata.source_file).each do |line|
-            next if line =~ /\bdepends\b/i
-            fd.puts(line)
-          end
-
-          dependencies.each do |(cookbook, constraint)|
-            old = metadata.dependencies[cookbook]
-            if old
-              report_change(cookbook, old, constraint)
-            else
-              report_change(cookbook, '<missing>', constraint)
-            end
-
-            fd.puts(%(depends '#{cookbook}', '#{constraint}'))
-          end
-        end
-
-        File.rename('metadata.new.rb', metadata.source_file)
-        @metadata = nil # Because we just modified it, clear cache
-      end
-
-      def clean
-        File.open('metadata.new.rb', 'w') do |fd|
-          File.readlines(metadata.source_file).each do |line|
-            next if line =~ /\bdepends\b/i
-            fd.puts(line)
-          end
-        end
-
-        File.rename('metadata.new.rb', metadata.source_file)
-        @metadata = nil # Because we just modified it, clear cache
-      end
-
-      def check
-        berksfile
-        metadata.dependencies.each do |(cookbook, constraint)|
-          next if constraint =~ /^\s*~>\s*[1-9][0-9]*\.\d+\s*$/
-          next if constraint =~ /^\s*~>\s*0\.\d+\.\d+\s*$/
-
-          correct = corrected_constraint(cookbook, constraint)
-          msg = Paint % ['  %{cookbook} : %{actual} (expected: %{constraint})', cookbook: Paint[cookbook, :white, :bold], constraint: Paint[correct, :yellow], actual: Paint[constraint, :red, :bold]]
-
-          log_error(msg)
-        end
-      rescue FileMissing => e
-        log_error(e.to_console)
-      end
-
-      def migrate
-        # Clear the Berksfile dependencies
-        File.open('Berksfile_new', 'w') do |fd|
-          File.readlines(berksfile.source_file).each do |line|
-            next if line =~ /\bcookbook\b/i
-            next if line.strip == 'metadata'
-            fd.puts(line)
-          end
-
-          metadata.dependencies.each do |(cookbook, constraint)|
-            correct = corrected_constraint(cookbook, constraint)
-
-            report_change(cookbook, constraint, correct)
-
-            fd.puts "cookbook '#{cookbook}', '#{correct}'"
-          end
-
-          fd.puts ''
-          fd.puts 'metadata'
-        end
-
-        # Because we just modified it, clear cache
-        File.rename('Berksfile_new', berksfile.source_file)
-        @berksfile = nil
-        File.unlink(berksfile_lock.source_file)
-        @berksfile_lock = nil
-
-        clean
-        call
-      end
-
-      def dependencies
-        @dependencies ||= begin
-          berksfile.dependencies.each_with_object({}) do |item, deps|
-            next if item.name == metadata.name
-
-            constraint = item.version_constraint.to_s
-            correct = corrected_constraint(item.name, constraint)
-
-            deps[item.name] = correct
-          end
-        end
       end
 
       private
@@ -210,10 +95,171 @@ module RordanGramsay
       end
     end
 
+    # This is the main entry point if you don't know/care what cookbook
+    # type whose dependencies you're managing. It should match all methods
+    # on the public interface of both `WrapperPinning` or `CookbookPinning`
+    class Pinning
+      extend Forwardable
+      include FileAccessor
+
+      def initialize
+        @obj = if metadata.name =~ /^(?:role|wrapper)_/i
+                 WrapperPinning.new
+               else
+                 CookbookPinning.new
+               end
+      end
+
+      def_delegators :@obj, :call, :check, :clean, :migrate, :update, :dependencies, :failure?
+    end
+
+    # Most cookbooks should use this, unless you desire a layout
+    # where the cookbook represents a versioned runlist and
+    # default attributes in its entirety. This would then be known
+    # as a role- or a wrapper-cookbook and instead use the
+    # `WrapperPinning` class.
+    class CookbookPinning
+      include FileAccessor
+      include Helpers
+
+      def call
+        yield if block_given?
+
+        File.open('metadata.new.rb', 'w') do |fd|
+          File.readlines(metadata.source_file).each do |line|
+            next if line =~ /\bdepends\b/i
+            fd.puts(line)
+          end
+
+          dependencies.each do |(cookbook, constraint)|
+            old = metadata.dependencies[cookbook]
+            if old
+              report_change(cookbook, old, constraint)
+            else
+              report_change(cookbook, '<missing>', constraint)
+            end
+
+            fd.puts(%(depends '#{cookbook}', '#{constraint}'))
+          end
+        end
+
+        File.rename('metadata.new.rb', metadata.source_file)
+        @metadata = nil # Because we just modified it, clear cache
+      end
+
+      def clean
+        yield if block_given?
+
+        File.open('metadata.new.rb', 'w') do |fd|
+          File.readlines(metadata.source_file).each do |line|
+            next if line =~ /\bdepends\b/i
+            fd.puts(line)
+          end
+        end
+
+        File.rename('metadata.new.rb', metadata.source_file)
+        @metadata = nil # Because we just modified it, clear cache
+      end
+
+      def check
+        yield if block_given?
+
+        berksfile
+        metadata.dependencies.each do |(cookbook, constraint)|
+          next if constraint =~ /^\s*~>\s*[1-9][0-9]*\.\d+\s*$/
+          next if constraint =~ /^\s*~>\s*0\.\d+\.\d+\s*$/
+
+          correct = corrected_constraint(cookbook, constraint)
+          msg = Paint % ['  %{cookbook} : %{actual} (expected: %{constraint})', cookbook: Paint[cookbook, :white, :bold], constraint: Paint[correct, :yellow], actual: Paint[constraint, :red, :bold]]
+
+          log_error(msg)
+        end
+      rescue FileMissing => e
+        log_error(e.to_console)
+      end
+
+      def migrate
+        # Clear the Berksfile dependencies
+        File.open('Berksfile_new', 'w') do |fd|
+          File.readlines(berksfile.source_file).each do |line|
+            next if line =~ /\bcookbook\b/i
+            next if line.strip == 'metadata'
+            fd.puts(line)
+          end
+
+          metadata.dependencies.each do |(cookbook, constraint)|
+            correct = corrected_constraint(cookbook, constraint)
+
+            report_change(cookbook, constraint, correct)
+
+            fd.puts "cookbook '#{cookbook}', '#{correct}'"
+          end
+
+          fd.puts ''
+          fd.puts 'metadata'
+        end
+
+        # Because we just modified it, clear cache
+        File.rename('Berksfile_new', berksfile.source_file)
+        @berksfile = nil
+        File.unlink(berksfile_lock.source_file)
+        @berksfile_lock = nil
+        clean
+
+        yield if block_given?
+        call
+      end
+
+      def update
+        deps = metadata.dependencies.dup
+        clean
+        if block_given?
+          yield
+        else
+          RordanGramsay.stream_command('berks update')
+        end
+
+        File.open('metadata.new.rb', 'w') do |fd|
+          File.readlines(metadata.source_file).each do |line|
+            next if line =~ /\bdepends\b/i
+            fd.puts(line)
+          end
+
+          dependencies.each do |(cookbook, constraint)|
+            old = deps[cookbook]
+            if old
+              report_change(cookbook, old, constraint)
+            else
+              report_change(cookbook, '<missing>', constraint)
+            end
+
+            fd.puts(%(depends '#{cookbook}', '#{constraint}'))
+          end
+        end
+
+        File.rename('metadata.new.rb', metadata.source_file)
+        @metadata = nil # Because we just modified it, clear cache
+      end
+
+      def dependencies
+        @dependencies ||= begin
+          berksfile.dependencies.each_with_object({}) do |item, deps|
+            next if item.name == metadata.name
+
+            constraint = item.version_constraint.to_s
+            correct = corrected_constraint(item.name, constraint)
+
+            deps[item.name] = correct
+          end
+        end
+      end
+    end
+
     # Pinning specifics for role- and wrapper-cookbooks
     class WrapperPinning < CookbookPinning
       def check
-        @is_fail = false
+        yield if block_given?
+
         deps = metadata.dependencies.each_with_object({}) do |(cookbook, constraint), dep|
           dep[cookbook] = constraint
         end

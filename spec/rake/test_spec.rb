@@ -45,9 +45,10 @@ RSpec.describe '[Cookbook] rake test' do
       expect(all_tasks).to include 'test:quick'
     end
 
-    it "should defer to 'lint:all'" do
+    it "should defer to 'lint:all' and 'dependency:check'" do
       out = run_command('rake --dry-run test:quick')
       expect(out).to include 'lint:all'
+      expect(out).to include 'dependency:check'
     end
   end
 
