@@ -3,6 +3,10 @@
 We follow [Semantic Versioning](http://semver.org/) as a way of measuring stability of an update. This
 means we will never make a backwards-incompatible change within a major version of the project.
 
+## v2.0.1 (2018-09-17)
+
+- Adds missing spec for minimum ruby version supported (v2.3.0 or higher in the v2.x release)
+
 ## v2.0.0 (2018-09-17)
 
 - [BREAKING] Removes support for mono-repo Rakefile
