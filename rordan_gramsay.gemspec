@@ -19,6 +19,8 @@ Gem::Specification.new do |spec|
   spec.executables = [RordanGramsay::EXECUTABLE]
   spec.require_paths = ['lib']
 
+  spec.required_ruby_version = '~> 2.3'
+
   spec.add_runtime_dependency 'cookstyle', '~> 3.0'
   spec.add_runtime_dependency 'foodcritic', '~> 14.0'
   spec.add_runtime_dependency 'paint', '~> 2.0'
