@@ -3,9 +3,13 @@
 We follow [Semantic Versioning](http://semver.org/) as a way of measuring stability of an update. This
 means we will never make a backwards-incompatible change within a major version of the project.
 
+## v2.0.3 (2018-09-20)
+
+- [BUG] InSpec tests that contain `require_controls` to import from other profiles should not be a linting error
+
 ## v2.0.2 (2018-09-17)
 
-- Adds missing dependencies to gemspec for berkshelf and chef (dependency management)
+- [BUG] Adds missing dependencies to gemspec for berkshelf and chef (dependency management)
 - [BUG] `rake dependency:update` leaves dependencies in wrapper cookbook on older than latest allowable version, per constraints defined in `Berksfile`
 - [BUG] `berks` commands seem unresponsive due to no output to STDOUT
 

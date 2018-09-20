@@ -32,6 +32,10 @@ module RordanGramsay
         def controls?
           @controls ||= @lines.any? { |line| line =~ /^.*(?<!#).*control[\s\(].*$/ }
         end
+
+        def external?
+          @external ||= @lines.any? { |line| line =~ /^.*(?<!#).*(?:include|require)_controls[\s\(].*$/ }
+        end
       end
 
       def initialize
@@ -46,7 +50,7 @@ module RordanGramsay
         @files.each do |file|
           errors = []
           # errors << :missing_encoding_line unless file.encoding?
-          errors << :missing_tests unless file.tests?
+          errors << :missing_tests unless file.tests? || file.external?
 
           # compile the error message
           if errors.empty?
